@@ -1,8 +1,17 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
-class AddScreen extends StatelessWidget {
+class AddScreen extends StatefulWidget {
   const AddScreen({super.key});
 
+  @override
+  State<AddScreen> createState() => _AddScreenState();
+}
+
+class _AddScreenState extends State<AddScreen> {
+  final titleController = TextEditingController();
+  final descriptionController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,6 +27,7 @@ class AddScreen extends StatelessWidget {
         padding: const EdgeInsets.all(10.0),
         child: Column(children: [
           TextFormField(
+              controller: titleController,
               decoration: InputDecoration(
                   focusedBorder: OutlineInputBorder(
                       borderSide:
@@ -28,6 +38,7 @@ class AddScreen extends StatelessWidget {
             height: 20,
           ),
           TextFormField(
+              controller: descriptionController,
               keyboardType: TextInputType.multiline,
               maxLines: 8,
               minLines: 4,
@@ -45,7 +56,9 @@ class AddScreen extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10)),
                   backgroundColor: Colors.teal.shade400),
-              onPressed: () {},
+              onPressed: () {
+                sumbitData();
+              },
               child: const Text(
                 'Add',
                 style: TextStyle(
@@ -55,6 +68,38 @@ class AddScreen extends StatelessWidget {
               ))
         ]),
       ),
+    );
+  }
+
+  Future<void> sumbitData() async {
+    final title = titleController.text;
+    final description = descriptionController.text;
+    final body = {
+      "title": title,
+      "description": description,
+      "is_completed": false,
+    };
+    const url = "https://api.nstack.in/v1/todos";
+    final uri = Uri.parse(url);
+    final response = await http.post(uri,
+        body: jsonEncode(body), headers: {'Content-Type': 'application/json'});
+    // print(response);
+    if (response.statusCode == 201) {
+      print(response.body);
+      showSnackMessage("SuccesFully Added", Colors.blue);
+    } else {
+      showSnackMessage("Failed to Post", Colors.red);
+      print('requst failed ');
+    }
+  }
+
+  void showSnackMessage(String message, Color color) {
+    final snackBar = SnackBar(
+      content: Text(message),
+      backgroundColor: color,
+    );
+    ScaffoldMessenger.of(context).showSnackBar(
+      snackBar,
     );
   }
 }
