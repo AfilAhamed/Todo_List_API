@@ -57,7 +57,7 @@ class _AddScreenState extends State<AddScreen> {
                       borderRadius: BorderRadius.circular(10)),
                   backgroundColor: Colors.teal.shade400),
               onPressed: () {
-                sumbitData();
+                postMethod();
               },
               child: const Text(
                 'Add',
@@ -71,7 +71,7 @@ class _AddScreenState extends State<AddScreen> {
     );
   }
 
-  Future<void> sumbitData() async {
+  Future<void> postMethod() async {
     final title = titleController.text;
     final description = descriptionController.text;
     final body = {
