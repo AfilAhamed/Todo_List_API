@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:todolist_api/view/add_screen.dart';
 import 'package:http/http.dart' as http;
+import 'package:todolist_api/view/edit_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,17 +30,52 @@ class _HomeScreenState extends State<HomeScreen> {
             'HomeScreen',
             style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white),
           )),
-      body: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: ListView.builder(
-          itemCount: data.length,
-          itemBuilder: (context, index) {
-            final items = data[index] as Map;
-            return ListTile(
-              title: Text(items['title']),
-              subtitle: Text(items['description']),
-            );
-          },
+      body: RefreshIndicator(
+        onRefresh: getMethod,
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: ListView.builder(
+            itemCount: data.length,
+            itemBuilder: (context, index) {
+              final items = data[index] as Map;
+              return Slidable(
+                endActionPane:
+                    ActionPane(motion: const DrawerMotion(), children: [
+                  SlidableAction(
+                    icon: Icons.edit,
+                    backgroundColor: Colors.blue,
+                    onPressed: (context) {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const EditScreen(),
+                          ));
+                    },
+                  ),
+                  SlidableAction(
+                    icon: Icons.delete,
+                    backgroundColor: Colors.red,
+                    onPressed: (context) {
+                      deleteById(items['_id']);
+                    },
+                  )
+                ]),
+                child: Card(
+                  color: Colors.grey.shade100,
+                  child: ListTile(
+                    leading: CircleAvatar(
+                        backgroundColor: Colors.teal.shade400,
+                        child: Text(
+                          '${index + 1}',
+                          style: const TextStyle(color: Colors.white),
+                        )),
+                    title: Text(items['title']),
+                    subtitle: Text(items['description']),
+                  ),
+                ),
+              );
+            },
+          ),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -75,6 +112,19 @@ class _HomeScreenState extends State<HomeScreen> {
       print(result);
       setState(() {
         data = result;
+      });
+    }
+  }
+
+  Future<void> deleteById(String id) async {
+    final url = "https://api.nstack.in/v1/todos/$id";
+    final uri = Uri.parse(url);
+
+    final response = await http.delete(uri);
+    if (response.statusCode == 200) {
+      final filtered = data.where((element) => element['_id'] != id).toList();
+      setState(() {
+        data = filtered;
       });
     }
   }

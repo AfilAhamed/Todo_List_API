@@ -1,19 +1,25 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:todolist_api/controller/add_controller.dart';
+import 'package:http/http.dart' as http;
 
-class AddScreen extends StatelessWidget {
-  const AddScreen({super.key});
+class EditScreen extends StatefulWidget {
+  const EditScreen({super.key});
 
   @override
+  State<EditScreen> createState() => _AddScreenState();
+}
+
+class _AddScreenState extends State<EditScreen> {
+  final titleController = TextEditingController();
+  final descriptionController = TextEditingController();
+  @override
   Widget build(BuildContext context) {
-    final addprovider = Provider.of<AddScreenController>(context);
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: Colors.teal.shade400,
         title: const Text(
-          'AddScreen',
+          'EditScreen',
           style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white),
         ),
       ),
@@ -21,7 +27,7 @@ class AddScreen extends StatelessWidget {
         padding: const EdgeInsets.all(10.0),
         child: Column(children: [
           TextFormField(
-              controller: addprovider.titleController,
+              controller: titleController,
               decoration: InputDecoration(
                   focusedBorder: OutlineInputBorder(
                       borderSide:
@@ -32,7 +38,7 @@ class AddScreen extends StatelessWidget {
             height: 20,
           ),
           TextFormField(
-              controller: addprovider.descriptionController,
+              controller: descriptionController,
               keyboardType: TextInputType.multiline,
               maxLines: 8,
               minLines: 4,
@@ -51,13 +57,10 @@ class AddScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10)),
                   backgroundColor: Colors.teal.shade400),
               onPressed: () {
-                addprovider.fetchPostMethod();
-                Navigator.pop(context);
-                addprovider.titleController.clear();
-                addprovider.descriptionController.clear();
+                //  postMethod();
               },
               child: const Text(
-                'Add',
+                'Edit',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 23,
@@ -67,14 +70,4 @@ class AddScreen extends StatelessWidget {
       ),
     );
   }
-
-  // void showSnackMessage(String message, Color color) {
-  //   final snackBar = SnackBar(
-  //     content: Text(message),
-  //     backgroundColor: color,
-  //   );
-  //   ScaffoldMessenger.of(context).showSnackBar(
-  //     snackBar,
-  //   );
-  // }
 }
