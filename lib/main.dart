@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:todolist_api/controller/add_controller.dart';
 import 'package:todolist_api/controller/home_controller.dart';
+import 'package:todolist_api/controller/update_controller.dart';
 import 'package:todolist_api/view/home_screen.dart';
 
 void main() {
@@ -19,7 +20,10 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (context) => HomeScreenController(),
-        )
+        ),
+        ChangeNotifierProvider(
+          create: (context) => UpdateController(),
+        ),
       ],
       child: MaterialApp(
         title: 'ToDo List',

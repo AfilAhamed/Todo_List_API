@@ -6,11 +6,10 @@ class AddScreenController extends ChangeNotifier {
   final descriptionController = TextEditingController();
 
   Future<void> fetchPostMethod() async {
-    final title = titleController.text;
-    final description = descriptionController.text;
+    final String title = titleController.text;
+    final String description = descriptionController.text;
 
-    TodoListServices newsServices = TodoListServices();
-    await newsServices.postMethod(title, description);
+    await TodoListServices().postMethod(title, description);
 
     notifyListeners();
   }

@@ -1,8 +1,8 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:provider/provider.dart';
+import 'package:todolist_api/controller/home_controller.dart';
 import 'package:todolist_api/view/add_screen.dart';
-import 'package:http/http.dart' as http;
 import 'package:todolist_api/view/edit_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -13,16 +13,18 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List data = [];
-
   @override
   void initState() {
-    getMethod();
+    final homeProvider =
+        Provider.of<HomeScreenController>(context, listen: false);
+    homeProvider.fetchgetMethod();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    final homeProvider = Provider.of<HomeScreenController>(context);
+
     return Scaffold(
       appBar: AppBar(
           backgroundColor: Colors.teal.shade400,
@@ -30,54 +32,69 @@ class _HomeScreenState extends State<HomeScreen> {
             'HomeScreen',
             style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white),
           )),
-      body: RefreshIndicator(
-        onRefresh: getMethod,
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: ListView.builder(
-            itemCount: data.length,
-            itemBuilder: (context, index) {
-              final items = data[index] as Map;
-              return Slidable(
-                endActionPane:
-                    ActionPane(motion: const DrawerMotion(), children: [
-                  SlidableAction(
-                    icon: Icons.edit,
-                    backgroundColor: Colors.blue,
-                    onPressed: (context) {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const EditScreen(),
-                          ));
-                    },
-                  ),
-                  SlidableAction(
-                    icon: Icons.delete,
-                    backgroundColor: Colors.red,
-                    onPressed: (context) {
-                      deleteById(items['_id']);
-                    },
-                  )
-                ]),
-                child: Card(
-                  color: Colors.grey.shade100,
-                  child: ListTile(
-                    leading: CircleAvatar(
-                        backgroundColor: Colors.teal.shade400,
-                        child: Text(
-                          '${index + 1}',
-                          style: const TextStyle(color: Colors.white),
-                        )),
-                    title: Text(items['title']),
-                    subtitle: Text(items['description']),
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ),
+      body: homeProvider.todoList.isEmpty
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: ListView.builder(
+                itemCount: homeProvider.todoList.length,
+                itemBuilder: (context, index) {
+                  return Slidable(
+                    endActionPane:
+                        ActionPane(motion: const DrawerMotion(), children: [
+                      SlidableAction(
+                        icon: Icons.edit,
+                        backgroundColor: Colors.blue,
+                        onPressed: (context) {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EditScreen(
+                                    title: homeProvider.todoList[index].title
+                                        .toString(),
+                                    description: homeProvider
+                                        .todoList[index].description
+                                        .toString(),
+                                    id: homeProvider.todoList[index].id
+                                        .toString()),
+                              ));
+                        },
+                      ),
+                      SlidableAction(
+                        icon: Icons.delete,
+                        backgroundColor: Colors.red,
+                        onPressed: (context) {
+                          String itemId =
+                              homeProvider.todoList[index].id.toString();
+                          homeProvider.deleteById(itemId);
+                          setState(() {
+                            homeProvider.todoList.removeAt(index);
+                          });
+                          //  deleteById(items['_id']);
+                        },
+                      )
+                    ]),
+                    child: Card(
+                      color: Colors.grey.shade100,
+                      child: ListTile(
+                        leading: CircleAvatar(
+                            backgroundColor: Colors.teal.shade400,
+                            child: Text(
+                              '${index + 1}',
+                              style: const TextStyle(color: Colors.white),
+                            )),
+                        title:
+                            Text(homeProvider.todoList[index].title.toString()),
+                        subtitle: Text(homeProvider.todoList[index].description
+                            .toString()),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: Colors.teal.shade400,
@@ -99,33 +116,14 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Future<void> getMethod() async {
-    const url = "https://api.nstack.in/v1/todos?page=1&limit=10";
-    final uri = Uri.parse(url);
-    final response = await http.get(uri);
+  // Future<void> deleteById(String id) async {
+  //   final url = "https://api.nstack.in/v1/todos/$id";
+  //   final uri = Uri.parse(url);
 
-    if (response.statusCode == 200) {
-      final jsondata = jsonDecode(response.body) as Map;
-      // print(jsondata);
-      // print(response.body);
-      final result = jsondata["items"] as List;
-      print(result);
-      setState(() {
-        data = result;
-      });
-    }
-  }
+  //   final response = await http.delete(uri);
+  //   if (response.statusCode == 200) {
+  //     // final filtered = data.where((element) => element['_id'] != id).toList();
 
-  Future<void> deleteById(String id) async {
-    final url = "https://api.nstack.in/v1/todos/$id";
-    final uri = Uri.parse(url);
-
-    final response = await http.delete(uri);
-    if (response.statusCode == 200) {
-      final filtered = data.where((element) => element['_id'] != id).toList();
-      setState(() {
-        data = filtered;
-      });
-    }
-  }
+  //   }
+  // }
 }

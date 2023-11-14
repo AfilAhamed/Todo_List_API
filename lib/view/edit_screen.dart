@@ -1,19 +1,37 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import 'package:todolist_api/controller/home_controller.dart';
+import 'package:todolist_api/controller/update_controller.dart';
 
 class EditScreen extends StatefulWidget {
-  const EditScreen({super.key});
+  const EditScreen(
+      {super.key,
+      required this.title,
+      required this.description,
+      required this.id});
+  final String id;
+  final String title;
+  final String description;
 
   @override
   State<EditScreen> createState() => _AddScreenState();
 }
 
 class _AddScreenState extends State<EditScreen> {
-  final titleController = TextEditingController();
-  final descriptionController = TextEditingController();
+  @override
+  void initState() {
+    final updateProvider =
+        Provider.of<UpdateController>(context, listen: false);
+    updateProvider.titleController.text = widget.title;
+    updateProvider.descriptionController.text = widget.description;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final updateProvider = Provider.of<UpdateController>(context);
+    final homeProvider = Provider.of<HomeScreenController>(context);
+
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
@@ -27,7 +45,7 @@ class _AddScreenState extends State<EditScreen> {
         padding: const EdgeInsets.all(10.0),
         child: Column(children: [
           TextFormField(
-              controller: titleController,
+              controller: updateProvider.titleController,
               decoration: InputDecoration(
                   focusedBorder: OutlineInputBorder(
                       borderSide:
@@ -38,7 +56,7 @@ class _AddScreenState extends State<EditScreen> {
             height: 20,
           ),
           TextFormField(
-              controller: descriptionController,
+              controller: updateProvider.descriptionController,
               keyboardType: TextInputType.multiline,
               maxLines: 8,
               minLines: 4,
@@ -57,7 +75,9 @@ class _AddScreenState extends State<EditScreen> {
                       borderRadius: BorderRadius.circular(10)),
                   backgroundColor: Colors.teal.shade400),
               onPressed: () {
-                //  postMethod();
+                updateProvider.update(widget.id);
+                homeProvider.fetchgetMethod();
+                Navigator.pop(context);
               },
               child: const Text(
                 'Edit',

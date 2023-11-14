@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:todolist_api/controller/add_controller.dart';
+import '../controller/home_controller.dart';
 
 class AddScreen extends StatelessWidget {
   const AddScreen({super.key});
@@ -8,6 +9,8 @@ class AddScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final addprovider = Provider.of<AddScreenController>(context);
+    final homeProvider = Provider.of<HomeScreenController>(context);
+
     return Scaffold(
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
@@ -52,9 +55,11 @@ class AddScreen extends StatelessWidget {
                   backgroundColor: Colors.teal.shade400),
               onPressed: () {
                 addprovider.fetchPostMethod();
+                homeProvider.fetchgetMethod();
                 Navigator.pop(context);
                 addprovider.titleController.clear();
                 addprovider.descriptionController.clear();
+                //  showSnackMessage(context, "dd", Colors.blue);
               },
               child: const Text(
                 'Add',
@@ -67,14 +72,4 @@ class AddScreen extends StatelessWidget {
       ),
     );
   }
-
-  // void showSnackMessage(String message, Color color) {
-  //   final snackBar = SnackBar(
-  //     content: Text(message),
-  //     backgroundColor: color,
-  //   );
-  //   ScaffoldMessenger.of(context).showSnackBar(
-  //     snackBar,
-  //   );
-  // }
 }
