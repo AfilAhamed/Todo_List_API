@@ -9,6 +9,7 @@ class AddScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final addprovider = Provider.of<AddScreenController>(context);
+
     final homeProvider = Provider.of<HomeScreenController>(context);
 
     return Scaffold(
