@@ -16,11 +16,15 @@ class TodoListServices {
     final uri = Uri.parse(url);
     final response = await http.post(uri,
         body: jsonEncode(body), headers: {'Content-Type': 'application/json'});
-    if (response.statusCode == 201) {
-      log('posting Sucessfull');
-      log(response.body);
-    } else {
-      log('Failed to Post :${response.statusCode}');
+    try {
+      if (response.statusCode == 201) {
+        log('posting Sucessfull');
+        log(response.body);
+      } else {
+        log('Failed to Post :${response.statusCode}');
+      }
+    } catch (error) {
+      log(error.toString());
     }
   }
 
@@ -33,22 +37,26 @@ class TodoListServices {
     final uri = Uri.parse(url);
     final response = await http.get(uri);
 
-    if (response.statusCode == 200) {
-      final jsonData = jsonDecode(response.body);
+    try {
+      if (response.statusCode == 200) {
+        final jsonData = jsonDecode(response.body);
 
-      jsonData['items'].forEach((element) {
-        if (element['title'] != null && element['description'] != null) {
-          TodoModel todoModel = TodoModel(
-              id: element['_id'],
-              title: element['title'],
-              description: element['description'],
-              isCompleted: element['is_completed']);
-          getItems.add(todoModel);
-        }
-      });
-      log('getmethod Succesfull');
-    } else {
-      log('failed to get${response.statusCode}');
+        jsonData['items'].forEach((element) {
+          if (element['title'] != null && element['description'] != null) {
+            TodoModel todoModel = TodoModel(
+                id: element['_id'],
+                title: element['title'],
+                description: element['description'],
+                isCompleted: element['is_completed']);
+            getItems.add(todoModel);
+          }
+        });
+        log('getmethod Succesfull');
+      } else {
+        log('failed to get${response.statusCode}');
+      }
+    } catch (error) {
+      log(error.toString());
     }
   }
   //Delete Method
@@ -58,10 +66,15 @@ class TodoListServices {
     final uri = Uri.parse(url);
 
     final response = await http.delete(uri);
-    if (response.statusCode == 200) {
-      log('deletion succesful');
-    } else {
-      log('deletion failed${response.statusCode}');
+
+    try {
+      if (response.statusCode == 200) {
+        log('deletion succesful');
+      } else {
+        log('deletion failed${response.statusCode}');
+      }
+    } catch (error) {
+      log(error.toString());
     }
   }
 
@@ -75,10 +88,14 @@ class TodoListServices {
     };
     final response = await http.put(uri,
         body: jsonEncode(data), headers: {'Content-Type': 'application/json'});
-    if (response.statusCode == 200) {
-      log('update succesfull');
-    } else {
-      log('update failed${response.statusCode}');
+    try {
+      if (response.statusCode == 200) {
+        log('update succesfull');
+      } else {
+        log('update failed${response.statusCode}');
+      }
+    } catch (error) {
+      log(error.toString());
     }
   }
 }
