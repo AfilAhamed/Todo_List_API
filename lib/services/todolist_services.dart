@@ -5,73 +5,70 @@ import 'package:todolist_api/model/todolist_model.dart';
 
 class TodoListServices {
   //Post Method
-
-  Future<void> postMethod(String title, String description) async {
+  Future<String> postMethod(String title, String description) async {
     final body = {
       "title": title,
       "description": description,
-      "is_completed": false,
     };
     const url = "https://api.nstack.in/v1/todos";
     final uri = Uri.parse(url);
-    final response = await http.post(uri,
-        body: jsonEncode(body), headers: {'Content-Type': 'application/json'});
     try {
+      final response = await http.post(uri,
+          body: jsonEncode(body),
+          headers: {'Content-Type': 'application/json'});
       if (response.statusCode == 201) {
-        log('posting Sucessfull');
-        log(response.body);
+        log('Post Method Sucessfull');
+        final responseData = jsonDecode(response.body);
+        String status = responseData["message"];
+        return status;
       } else {
         log('Failed to Post :${response.statusCode}');
+        final responseData = jsonDecode(response.body);
+        String status = responseData["message"];
+        return status;
       }
     } catch (error) {
       log(error.toString());
+      return "Something Went Wrong";
     }
   }
 
   //Get Method
-
-  List<TodoModel> getItems = [];
-
-  Future<void> getMethod() async {
+  Future<TodoListModel?> getMethod() async {
     const url = "https://api.nstack.in/v1/todos?page=1&limit=10";
     final uri = Uri.parse(url);
-    final response = await http.get(uri);
 
     try {
+      final response = await http.get(uri);
       if (response.statusCode == 200) {
+        log('Get Method is Succesfull');
+
         final jsonData = jsonDecode(response.body);
 
-        jsonData['items'].forEach((element) {
-          if (element['title'] != null && element['description'] != null) {
-            TodoModel todoModel = TodoModel(
-                id: element['_id'],
-                title: element['title'],
-                description: element['description'],
-                isCompleted: element['is_completed']);
-            getItems.add(todoModel);
-          }
-        });
-        log('getmethod Succesfull');
+        final data = TodoListModel.fromJson(jsonData);
+
+        return data;
       } else {
-        log('failed to get${response.statusCode}');
+        log('failed to Get ${response.statusCode}');
+        return null;
       }
     } catch (error) {
       log(error.toString());
+      return null;
     }
   }
-  //Delete Method
 
-  Future<void> deleteById(String id) async {
+  //Delete Method
+  Future<void> deleteMethod(String id) async {
     final url = "https://api.nstack.in/v1/todos/$id";
     final uri = Uri.parse(url);
 
-    final response = await http.delete(uri);
-
     try {
+       final response = await http.delete(uri);
       if (response.statusCode == 200) {
-        log('deletion succesful');
+        log('deleted succesfuly');
       } else {
-        log('deletion failed${response.statusCode}');
+        log('failed to delete ${response.statusCode}');
       }
     } catch (error) {
       log(error.toString());
@@ -80,19 +77,20 @@ class TodoListServices {
 
   //Update Method
   Future<void> updateMethod(String id, String title, String description) async {
-    final url = "https://api.nstack.in/v1/todos/$id";
-    final uri = Uri.parse(url);
-    final Map<String, String> data = {
+    final  data = {
       "title": title,
       "description": description,
     };
-    final response = await http.put(uri,
-        body: jsonEncode(data), headers: {'Content-Type': 'application/json'});
+    final url = "https://api.nstack.in/v1/todos/$id";
+    final uri = Uri.parse(url);
+
     try {
+       final response = await http.put(uri,
+        body: jsonEncode(data), headers: {'Content-Type': 'application/json'});
       if (response.statusCode == 200) {
-        log('update succesfull');
+        log('updated succesfully');
       } else {
-        log('update failed${response.statusCode}');
+        log('failed update ${response.statusCode}');
       }
     } catch (error) {
       log(error.toString());
