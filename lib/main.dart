@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:todolist_api/controller/crud_controller.dart';
-
 import 'package:todolist_api/view/home_screen.dart';
 
 void main() {
